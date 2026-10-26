@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Churn prediction{% endblock %}
+{% block page_heading %}Customer churn prediction{% endblock %}
+{% block page_meta %}Interface ready for classifiers · models not connected{% endblock %}
+
+{% block content %}
+<section class="assumption-banner" role="note">
+  <h2>Research assumption</h2>
+  <p>{{ assumption.statement }}</p>
+  <p class="mb-0"><strong>Validation status:</strong> Not validated. The window is currently {{ assumption.window_days }} days and can be changed in the service layer later.</p>
+</section>
+
+<section class="split-layout">
+  <article class="card-surface">
+    <h2>Model performance</h2>
+    <div class="notice-block">
+      <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+      <p>{{ model.status }}</p>
+    </div>
+    <dl class="detail-list">
+      <div><dt>Logistic regression</dt><dd>{{ model.logistic_regression }}</dd></div>
+      <div><dt>Decision tree</dt><dd>{{ model.decision_tree }}</dd></div>
+      <div><dt>Accuracy</dt><dd>{{ model.accuracy }}</dd></div>
+      <div><dt>Precision</dt><dd>{{ model.precision }}</dd></div>
+      <div><dt>Recall</dt><dd>{{ model.recall }}</dd></div>
+      <div><dt>F1-score</dt><dd>{{ model.f1 }}</dd></div>
+      <div><dt>ROC-AUC</dt><dd>{{ model.roc_auc }}</dd></div>
+    </dl>
+  </article>
+  <article class="card-surface">
+    <h2>Demonstration risk mix</h2>
+    <p class="chart-caption">Hand-assigned labels for layout testing. Not predicted probabilities.</p>
+    <canvas id="churnRiskChart" aria-label="Demonstration churn risk mix"></canvas>
+  </article>
+</section>
+
+<section class="card-surface">
+  <h2>Customers and inactivity risk</h2>
+  <form class="filter-bar nested" method="get" action="{{ url_for('churn') }}">
+    <div class="filter-grid">
+      <div>
+        <label class="form-label" for="q">Search customers</label>
+        <input class="form-control" type="search" id="q" name="q" value="{{ query }}" placeholder="ID or name">
+      </div>
+      <div>
+        <label class="form-label" for="risk">Risk filter</label>
+        <select class="form-select" id="risk" name="risk">
+          <option value="">All demonstration risk labels</option>
+          <option value="high" {% if risk == "high" %}selected{% endif %}>High</option>
+          <option value="medium" {% if risk == "medium" %}selected{% endif %}>Medium</option>
+          <option value="low" {% if risk == "low" %}selected{% endif %}>Low</option>
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary" type="submit">Filter</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('churn') }}">Reset</a>
+      </div>
+    </div>
+  </form>
+
+  {% if rows %}
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th scope="col">Customer</th>
+          <th scope="col">Last purchase</th>
+          <th scope="col">Recency (days)</th>
+          <th scope="col">Frequency</th>
+          <th scope="col">Risk label</th>
+          <th scope="col">Why this record may be at risk</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td><a href="{{ url_for('customer_detail', customer_id=row.id) }}">{{ row.id }}</a><div class="cell-sub">{{ row.name }}</div></td>
+          <td>{{ row.last_purchase | display_date }}</td>
+          <td>
+            {{ row.recency_days if row.recency_days is not none else "—" }}
+            {% if row.beyond_window %}
+            <div class="cell-sub">Beyond {{ assumption.window_days }}-day assumption</div>
+            {% endif %}
+          </td>
+          <td>{{ row.frequency }}</td>
+          <td><span class="badge-risk badge-{{ row.churn_risk }}">{{ row.churn_risk | capitalize }}</span></td>
+          <td>{{ row.risk_notes }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="bi bi-shield-x" aria-hidden="true"></i>
+    <p>No demonstration customers match this risk filter.</p>
+  </div>
+  {% endif %}
+</section>
+
+<script type="application/json" id="churn-chart-data">{{ chart | tojson }}</script>
+{% endblock %}

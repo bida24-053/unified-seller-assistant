@@ -1,0 +1,46 @@
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Private datasets (do not commit real customer data)
+data/private/
+*.csv
+!tests/fixtures/**
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Generated model artifacts
+models/
+artifacts/
+*.pkl
+*.joblib
+*.h5
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Customers{% endblock %}
+{% block page_heading %}Customer management{% endblock %}
+{% block page_meta %}Demonstration directory held in memory{% endblock %}
+
+{% block content %}
+{% set message = "Customer records are synthetic demonstration data stored in memory. New entries are not permanently saved." %}
+{% include "partials/demo_banner.html" %}
+
+<div class="split-layout">
+  <div>
+    <section class="card-surface">
+      <form class="filter-bar nested" method="get" action="{{ url_for('customers') }}">
+        <div class="filter-grid">
+          <div>
+            <label class="form-label" for="q">Search by ID or name</label>
+            <input class="form-control" id="q" name="q" value="{{ query }}" placeholder="ID or name">
+          </div>
+          <div>
+            <label class="form-label" for="segment">Segment</label>
+            <select class="form-select" id="segment" name="segment">
+              <option value="">All demonstration segments</option>
+              {% for key, label in segment_labels.items() %}
+                <option value="{{ key }}" {% if segment == key %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="filter-actions">
+            <button class="btn btn-primary" type="submit">Filter</button>
+            <a class="btn btn-outline-secondary" href="{{ url_for('customers') }}">Reset</a>
+          </div>
+        </div>
+      </form>
+
+      <h2>Customer directory</h2>
+      {% if customers %}
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Customer ID</th>
+                <th>Name</th>
+                <th>Last purchase</th>
+                <th>Orders</th>
+                <th class="text-end">Total spending</th>
+                <th>Segment</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in customers %}
+                <tr>
+                  <td><a href="{{ url_for('customer_detail', customer_id=row.id) }}">{{ row.id }}</a></td>
+                  <td>{{ row.name }}</td>
+                  <td>{{ row.last_purchase | display_date }}</td>
+                  <td>{{ row.order_count }}</td>
+                  <td class="text-end">{{ row.total_spend | pula }}</td>
+                  <td><span class="badge-segment badge-{{ row.segment }}">{{ row.segment_label }}</span></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <i class="bi bi-people" aria-hidden="true"></i>
+          <p>No demonstration customers match this search.</p>
+        </div>
+      {% endif %}
+    </section>
+  </div>
+
+  <section class="card-surface">
+    <h2>Add demonstration customer</h2>
+    <p class="hint-text">Required fields are marked. Records stay in memory until the server stops.</p>
+    <form method="post" action="{{ url_for('customers') }}" novalidate>
+      <div class="mb-3">
+        <label class="form-label" for="name">Customer name <span class="required">*</span></label>
+        <input class="form-control" id="name" name="name" required minlength="2" value="{{ form_values.name }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="location">Location</label>
+        <input class="form-control" id="location" name="location" value="{{ form_values.location }}" placeholder="e.g. Gaborone">
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="phone">Phone (optional)</label>
+        <input class="form-control" id="phone" name="phone" value="{{ form_values.phone }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="last_purchase">Last purchase date</label>
+        <input class="form-control" type="date" id="last_purchase" name="last_purchase" value="{{ form_values.last_purchase }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="order_count">Number of orders</label>
+        <input class="form-control" type="number" min="0" step="1" id="order_count" name="order_count" required value="{{ form_values.order_count }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="total_spend">Total spending (P)</label>
+        <input class="form-control" type="number" min="0" step="0.01" id="total_spend" name="total_spend" required value="{{ form_values.total_spend }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="form_segment">Demonstration segment</label>
+        <select class="form-select" id="form_segment" name="segment" required>
+          {% for key, label in segment_labels.items() %}
+            <option value="{{ key }}" {% if form_values.segment == key %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="btn btn-primary w-100" type="submit">Add to session</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

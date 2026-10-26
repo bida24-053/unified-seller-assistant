@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_heading %}Business overview{% endblock %}
+{% block page_meta %}Demonstration metrics for interface development{% endblock %}
+
+{% block content %}
+{% set message = "All figures on this page are synthetic demonstration records. They do not represent an actual seller's performance." %}
+{% include "partials/demo_banner.html" %}
+
+<section class="kpi-grid">
+  <a class="kpi-card kpi-link" href="{{ url_for('customers') }}">
+    <p class="kpi-label">Total customers</p>
+    <p class="kpi-value">{{ metrics.total_customers }}</p>
+    <p class="kpi-note">Open customer directory</p>
+  </a>
+  <article class="kpi-card">
+    <p class="kpi-label">Total transactions</p>
+    <p class="kpi-value">{{ metrics.total_transactions }}</p>
+    <p class="kpi-note">{% if metrics.is_filtered %}Filtered view{% else %}All demonstration sales{% endif %}</p>
+  </article>
+  <a class="kpi-card kpi-link" href="{{ url_for('pricing') }}">
+    <p class="kpi-label">Total sales revenue</p>
+    <p class="kpi-value">{{ metrics.total_revenue | pula }}</p>
+    <p class="kpi-note">Open pricing assistant</p>
+  </a>
+  <a class="kpi-card kpi-card-alert kpi-link" href="{{ url_for('churn') }}">
+    <p class="kpi-label">Customers classified as at risk</p>
+    <p class="kpi-value">{{ metrics.at_risk_count }}</p>
+    <p class="kpi-note">Open churn-risk page</p>
+  </a>
+</section>
+
+<section class="card-surface">
+  <h2>Date filter</h2>
+  <p class="hint-text">Filters the transaction table and category chart. Sales-trend months remain a fixed demonstration series.</p>
+  <form class="filter-bar nested" method="get" action="{{ url_for('dashboard') }}">
+    <div class="filter-grid">
+      <div>
+        <label class="form-label" for="date_from">From</label>
+        <input class="form-control" type="date" id="date_from" name="date_from" value="{{ metrics.date_from }}">
+      </div>
+      <div>
+        <label class="form-label" for="date_to">To</label>
+        <input class="form-control" type="date" id="date_to" name="date_to" value="{{ metrics.date_to }}">
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary" type="submit">Apply filter</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('dashboard') }}">Reset</a>
+      </div>
+    </div>
+  </form>
+</section>
+
+<section class="chart-grid">
+  <article class="card-surface">
+    <h2>Sales trends over time</h2>
+    <p class="chart-caption">Demonstration monthly revenue series</p>
+    <canvas id="salesTrendChart" aria-label="Sales trend chart"></canvas>
+  </article>
+  <article class="card-surface">
+    <h2>RFM segment distribution</h2>
+    <p class="chart-caption">Provisional demonstration classifications</p>
+    <canvas id="rfmChart" aria-label="Segment doughnut chart"></canvas>
+  </article>
+  <article class="card-surface">
+    <h2>Sales by product category</h2>
+    <p class="chart-caption">Filtered demonstration transactions</p>
+    <canvas id="categoryChart" aria-label="Category sales chart"></canvas>
+  </article>
+  <article class="card-surface">
+    <h2>Customer churn-risk distribution</h2>
+    <p class="chart-caption">Not a trained model output</p>
+    <canvas id="churnChart" aria-label="Churn risk chart"></canvas>
+  </article>
+</section>
+
+<section class="card-surface">
+  <h2>Recent transactions</h2>
+  {% if metrics.recent_transactions %}
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Transaction ID</th>
+            <th>Customer ID</th>
+            <th>Product</th>
+            <th>Purchase date</th>
+            <th class="text-end">Transaction value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in metrics.recent_transactions %}
+            <tr>
+              <td>{{ row.id }}</td>
+              <td><a href="{{ url_for('customer_detail', customer_id=row.customer_id) }}">{{ row.customer_id }}</a></td>
+              <td>{{ row.product }}</td>
+              <td>{{ row.purchase_date | display_date }}</td>
+              <td class="text-end">{{ row.value | pula }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="empty-state">No demonstration transactions match the selected dates.</p>
+  {% endif %}
+</section>
+
+<script type="application/json" id="dashboard-chart-data">{{ metrics.chart | tojson }}</script>
+{% endblock %}

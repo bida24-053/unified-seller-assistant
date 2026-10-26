@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}About{% endblock %}
+{% block page_heading %}About the project{% endblock %}
+{% block page_meta %}Botswana Accountancy College · Research and Innovation Module{% endblock %}
+
+{% block content %}
+<article class="card-surface prose">
+  <h2>Project title and purpose</h2>
+  <p><strong>Unified Seller CRM and Pricing Assistant</strong> is a university research and innovation project. It is intended to help informal online sellers and small businesses in Botswana manage customer records, understand purchasing behaviour, notice inactivity risk, and consider evidence-based pricing decisions.</p>
+  <p>This application is a student research prototype. It is not an existing commercial product and does not use another company's branding.</p>
+</article>
+
+<article class="card-surface prose">
+  <h2>The problem being addressed</h2>
+  <p>Small online sellers often keep customer and sales information in fragmented chats, spreadsheets or memory. That makes it difficult to see who is still active, which customers are valuable, who may be drifting away, and whether a selling price is defensible. The project explores a single interface that combines CRM, RFM segmentation, churn-risk views and advisory pricing.</p>
+</article>
+
+<article class="card-surface prose">
+  <h2>Target users</h2>
+  <p>Informal online sellers and small businesses in Botswana who need a practical, understandable view of customers and prices, without requiring a large enterprise system.</p>
+</article>
+
+<article class="card-surface prose">
+  <h2>Main system components</h2>
+  <ul>
+    <li>Customer Relationship Management (CRM) directory and customer detail views</li>
+    <li>Recency, Frequency and Monetary value (RFM) segmentation</li>
+    <li>Machine-learning-based customer churn prediction (planned)</li>
+    <li>Explainable pricing recommendations (planned)</li>
+    <li>An integrated business dashboard</li>
+  </ul>
+</article>
+
+<article class="card-surface prose">
+  <h2>Proposed technologies</h2>
+  <ul>
+    <li>Python and Flask for the web application</li>
+    <li>HTML5, CSS3, JavaScript and Bootstrap 5 for the interface</li>
+    <li>Chart.js for interactive charts</li>
+    <li>SQL database with SQLAlchemy (planned)</li>
+    <li>Scikit-learn for logistic regression, decision trees and regression models (planned)</li>
+  </ul>
+</article>
+
+<article class="card-surface prose">
+  <h2>Development status</h2>
+  <h3>Completed in this prototype</h3>
+  <ul>
+    <li>Six Flask pages with named routes and shared navigation</li>
+    <li>Responsive layout with a persistent desktop sidebar and collapsible mobile menu</li>
+    <li>Demonstration dashboard metrics, filters, tables and charts</li>
+    <li>In-memory customer search, filtering, validation and add-customer form</li>
+    <li>RFM, churn and pricing screens structured for later model integration</li>
+  </ul>
+  <h3>Not yet implemented</h3>
+  <ul>
+    <li>SQL database persistence (current customer additions exist only in memory: {{ customer_count }} records in this process)</li>
+    <li>Data validation and cleaning pipelines for a real dataset</li>
+    <li>Calculated RFM scores from live transactions</li>
+    <li>Trained churn classifiers and genuine performance metrics</li>
+    <li>Trained pricing regression models</li>
+  </ul>
+</article>
+
+<article class="card-surface prose">
+  <h2>Limitations of the current prototype</h2>
+  <ul>
+    <li>All customers, transactions, prices and charts are synthetic demonstration data.</li>
+    <li>No confidential or real customer information is stored in this repository.</li>
+    <li>Churn-risk labels are not predicted probabilities.</li>
+    <li>Pricing output is an explicit demonstration heuristic, not a trained model.</li>
+    <li>Restarting the Flask server resets any customers added through the form.</li>
+  </ul>
+</article>
+{% endblock %}

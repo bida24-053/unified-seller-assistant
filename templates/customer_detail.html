@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ customer.id }}{% endblock %}
+{% block page_heading %}{{ customer.name }}{% endblock %}
+{% block page_meta %}Demonstration customer record · {{ customer.id }}{% endblock %}
+
+{% block content %}
+<p><a class="back-link" href="{{ url_for('customers') }}"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to directory</a></p>
+
+<section class="kpi-grid">
+  <article class="kpi-card">
+    <p class="kpi-label">Customer ID</p>
+    <p class="kpi-value kpi-value-sm">{{ customer.id }}</p>
+  </article>
+  <article class="kpi-card">
+    <p class="kpi-label">Last purchase</p>
+    <p class="kpi-value kpi-value-sm">{{ customer.last_purchase | display_date }}</p>
+  </article>
+  <article class="kpi-card">
+    <p class="kpi-label">Orders</p>
+    <p class="kpi-value">{{ customer.order_count }}</p>
+  </article>
+  <article class="kpi-card">
+    <p class="kpi-label">Total spending</p>
+    <p class="kpi-value kpi-value-sm">{{ customer.total_spend | pula }}</p>
+  </article>
+</section>
+
+<section class="card-surface">
+  <h2>Profile</h2>
+  <dl class="detail-list">
+    <div><dt>Provisional segment</dt><dd><span class="badge-segment badge-{{ customer.segment }}">{{ customer.segment_label }}</span></dd></div>
+    <div><dt>Recency (days)</dt><dd>{{ customer.recency_days if customer.recency_days is not none else "—" }}</dd></div>
+    <div><dt>Frequency (orders)</dt><dd>{{ customer.frequency }}</dd></div>
+    <div><dt>Monetary value</dt><dd>{{ customer.monetary | pula }}</dd></div>
+    <div><dt>Demonstration churn-risk label</dt><dd><span class="badge-risk badge-{{ customer.churn_risk }}">{{ customer.churn_risk | capitalize }}</span></dd></div>
+    <div><dt>Interface note</dt><dd>{{ customer.risk_notes }}</dd></div>
+  </dl>
+</section>
+
+<section class="card-surface">
+  <h2>Linked demonstration transactions</h2>
+  {% if customer.transactions %}
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th scope="col">Transaction ID</th>
+          <th scope="col">Product</th>
+          <th scope="col">Purchase date</th>
+          <th scope="col">Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in customer.transactions %}
+        <tr>
+          <td>{{ row.id }}</td>
+          <td>{{ row.product }}</td>
+          <td>{{ row.purchase_date | display_date }}</td>
+          <td>{{ row.value | pula }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="bi bi-receipt" aria-hidden="true"></i>
+    <p>No demonstration transactions are linked to this customer.</p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

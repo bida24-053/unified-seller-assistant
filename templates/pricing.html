@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Pricing assistant{% endblock %}
+{% block page_heading %}Pricing assistant{% endblock %}
+{% block page_meta %}Advisory recommendations only · model not connected{% endblock %}
+
+{% block content %}
+<div class="notice-block">
+  <i class="bi bi-info-circle" aria-hidden="true"></i>
+  <p>{{ model_status }} Recommendations never change stored prices.</p>
+</div>
+
+<div class="split-layout">
+  <section class="card-surface">
+    <h2>Generate a demonstration recommendation</h2>
+    <form method="post" action="{{ url_for('pricing') }}">
+      <div class="mb-3">
+        <label class="form-label" for="product_id">Product</label>
+        <select class="form-select" id="product_id" name="product_id" required>
+          <option value="">Select a demonstration product</option>
+          {% for product in products %}
+          <option value="{{ product.id }}" {% if selected_id == product.id %}selected{% endif %}>{{ product.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="btn btn-primary" type="submit">Generate Recommendation</button>
+    </form>
+
+    {% if recommendation %}
+    <div class="recommendation-panel">
+      <p class="status-chip">Demonstration heuristic · not a model prediction</p>
+      <dl class="detail-list">
+        <div><dt>Product</dt><dd>{{ recommendation.product.name }}</dd></div>
+        <div><dt>Current selling price</dt><dd>{{ recommendation.current_price | pula }}</dd></div>
+        <div><dt>Product cost</dt><dd>{{ recommendation.cost | pula }}</dd></div>
+        <div><dt>Competitor price</dt><dd>{{ recommendation.competitor_price | pula }}</dd></div>
+        <div><dt>Price difference vs competitor</dt><dd>
+          {% if recommendation.price_difference is not none %}
+            {{ recommendation.price_difference | pula }}
+            {% if recommendation.percent_difference is not none %}({{ recommendation.percent_difference }}%){% endif %}
+          {% else %}—{% endif %}
+        </dd></div>
+        <div><dt>Suggested price adjustment</dt><dd>{{ recommendation.suggested_adjustment | pula }}</dd></div>
+        <div><dt>Proposed selling price</dt><dd>{{ recommendation.proposed_price | pula }}</dd></div>
+      </dl>
+      <h3>Recommendation explanation</h3>
+      <p>{{ recommendation.explanation }}</p>
+    </div>
+    {% endif %}
+  </section>
+
+  <section class="card-surface">
+    <h2>Current vs proposed price</h2>
+    <p class="chart-caption">
+      {% if recommendation %}
+      Demonstration comparison for the selected product.
+      {% else %}
+      Chart shows current demonstration prices until you generate a recommendation.
+      {% endif %}
+    </p>
+    <canvas id="pricingChart" aria-label="Demonstration price comparison chart"></canvas>
+  </section>
+</div>
+
+<section class="card-surface">
+  <h2>Product comparison table</h2>
+  <p class="hint-text">Demonstration catalogue prices in Botswana pula. Competitor figures are sample values for the interface.</p>
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th scope="col">Product</th>
+          <th scope="col">Category</th>
+          <th scope="col">Current price</th>
+          <th scope="col">Cost</th>
+          <th scope="col">Competitor price</th>
+          <th scope="col">Difference</th>
+          <th scope="col">% difference</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in comparison %}
+        <tr>
+          <td>{{ row.name }}</td>
+          <td>{{ row.category }}</td>
+          <td>{{ row.current_price | pula }}</td>
+          <td>{{ row.cost | pula }}</td>
+          <td>{{ row.competitor_price | pula }}</td>
+          <td>{{ row.price_difference | pula }}</td>
+          <td>{% if row.percent_difference is not none %}{{ row.percent_difference }}%{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<script type="application/json" id="pricing-chart-data">{{ chart | tojson }}</script>
+{% endblock %}
