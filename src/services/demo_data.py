@@ -9,7 +9,7 @@ Replace this module later with SQLAlchemy queries against a validated dataset.
 from __future__ import annotations
 
 from copy import deepcopy
-from datetime import date
+from datetime import date, timedelta
 
 
 # Research assumption displayed on the churn page. Not a validated rule.
@@ -257,6 +257,94 @@ def _base_transactions() -> list[dict]:
     ]
 
 
+def _additional_customers() -> list[dict]:
+    locations = [
+        "Gaborone",
+        "Francistown",
+        "Maun",
+        "Molepolole",
+        "Serowe",
+        "Palapye",
+        "Lobatse",
+        "Kanye",
+        "Mahalapye",
+        "Kasane",
+    ]
+    records = []
+    for offset in range(50):
+        customer_number = offset + 13
+        recency = (offset * 37 + 9) % 220
+        order_count = (offset * 7) % 15 + 1
+        average_order_value = 75 + (offset * 29) % 425
+        total_spend = round(order_count * average_order_value + (offset % 100) / 100, 2)
+        last_purchase = REFERENCE_DATE - timedelta(days=recency)
+
+        if recency >= CHURN_INACTIVITY_DAYS:
+            segment = "inactive"
+            churn_risk = "high"
+            risk_notes = "Beyond the proposed inactivity window. Demonstration classification only."
+        elif recency >= 45:
+            segment = "at-risk"
+            churn_risk = "medium"
+            risk_notes = "Purchase gap is increasing. Demonstration classification only."
+        elif order_count <= 2:
+            segment = "new"
+            churn_risk = "medium"
+            risk_notes = "Short purchase history. Demonstration classification only."
+        elif total_spend >= 2500:
+            segment = "high-value"
+            churn_risk = "low"
+            risk_notes = "Higher demonstration-set spending. Demonstration classification only."
+        else:
+            segment = "loyal"
+            churn_risk = "low"
+            risk_notes = "Recent repeat purchases. Demonstration classification only."
+
+        records.append(
+            {
+                "id": f"C-{1000 + customer_number:04d}",
+                "name": f"Demo Customer {customer_number:02d}",
+                "phone": f"7{1 + offset % 6} 900 {customer_number:03d}",
+                "location": locations[offset % len(locations)],
+                "last_purchase": last_purchase,
+                "order_count": order_count,
+                "total_spend": total_spend,
+                "segment": segment,
+                "recency_days": recency,
+                "frequency": order_count,
+                "monetary": total_spend,
+                "churn_risk": churn_risk,
+                "risk_notes": risk_notes,
+            }
+        )
+    return records
+
+
+def _additional_transactions(customers: list[dict]) -> list[dict]:
+    products = [
+        ("Hair oil 100ml", "Hair care"),
+        ("Lip gloss set", "Cosmetics"),
+        ("Airtime P50", "Airtime"),
+        ("Ladies blouse", "Clothing"),
+        ("Wireless earbuds", "Electronics accessories"),
+        ("Maize meal 10kg", "Groceries"),
+    ]
+    transactions = []
+    for index, customer in enumerate(customers):
+        product, category = products[index % len(products)]
+        transactions.append(
+            {
+                "id": f"T-{2001 + index}",
+                "customer_id": customer["id"],
+                "product": product,
+                "category": category,
+                "purchase_date": customer["last_purchase"],
+                "value": round(customer["total_spend"] / customer["order_count"], 2),
+            }
+        )
+    return transactions
+
+
 def _base_products() -> list[dict]:
     return [
         {
@@ -329,14 +417,15 @@ class DemoStore:
         self.reset()
 
     def reset(self) -> None:
-        self.customers = _base_customers()
-        self.transactions = _base_transactions()
+        additional_customers = _additional_customers()
+        self.customers = _base_customers() + additional_customers
+        self.transactions = _base_transactions() + _additional_transactions(additional_customers)
         self.products = _base_products()
         self.sales_trend = _base_sales_trend()
         self.churn_inactivity_days = CHURN_INACTIVITY_DAYS
         self.reference_date = REFERENCE_DATE
         self.segment_guide = deepcopy(SEGMENT_GUIDE)
-        self._next_customer = 1013
+        self._next_customer = 1063
 
     def next_customer_id(self) -> str:
         customer_id = f"C-{self._next_customer:04d}"

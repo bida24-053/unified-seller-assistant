@@ -29,7 +29,7 @@ Currency is shown in Botswana pula (P). All sample records are synthetic demonst
 | Pricing assistant | `/pricing` | Product comparison, advisory demonstration recommendation |
 | About | `/about` | Project context, status and limitations |
 
-Customer records added in the form are held **in memory only**. They disappear when the server stops.
+The prototype includes 62 synthetic customer records, including 50 additional demo customers with linked sample transactions. Customer records added through the form are held **in memory only** and disappear when the server stops.
 
 ## Technology stack
 

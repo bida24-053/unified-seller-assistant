@@ -37,6 +37,30 @@ def test_dashboard_contains_demo_label_and_charts(client):
     assert "dashboard-chart-data" in html
 
 
+def test_demo_dataset_includes_50_additional_customers_with_linked_transactions(client):
+    assert len(store.customers) == 62
+    assert len({item["id"] for item in store.customers}) == 62
+    assert len(store.transactions) == 72
+
+    added_customers = [item for item in store.customers if item["id"] >= "C-1013"]
+    assert len(added_customers) == 50
+    assert {item["segment"] for item in added_customers} == {
+        "loyal",
+        "high-value",
+        "new",
+        "at-risk",
+        "inactive",
+    }
+    assert all(
+        any(transaction["customer_id"] == customer["id"] for transaction in store.transactions)
+        for customer in added_customers
+    )
+
+    response = client.get("/customers/C-1013")
+    assert response.status_code == 200
+    assert "Demo Customer 13" in response.get_data(as_text=True)
+
+
 def test_dashboard_date_filter_can_empty_transactions(client):
     response = client.get("/?date_from=2010-01-01&date_to=2010-01-02")
     html = response.get_data(as_text=True)
@@ -80,6 +104,7 @@ def test_customer_add_is_in_memory_only(client):
     assert "Demo Customer Extra" in html
     assert "in-memory demonstration list" in html
     assert len(store.customers) == before + 1
+    assert store.customers[-1]["id"] == "C-1063"
 
 
 def test_unknown_customer_redirects(client):
