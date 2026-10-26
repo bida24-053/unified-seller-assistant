@@ -106,6 +106,14 @@ Then open http://127.0.0.1:5000 in a browser.
 
 The repository includes a Render Blueprint configuration in `render.yaml`.
 
+### Live application
+
+Open and share: [https://unified-seller-assistant.onrender.com/](https://unified-seller-assistant.onrender.com/)
+
+Scan this QR code to open the live frontend:
+
+![QR code for the live Unified Seller Assistant frontend](./share-qr-code.png)
+
 1. Sign in to [Render](https://render.com/) and choose **New > Blueprint**.
 2. Connect the `bida24-053/unified-seller-assistant` GitHub repository and select the `main` branch.
 3. Review and deploy the `unified-seller-assistant` web service. Render installs the dependencies and generates a production `SECRET_KEY` automatically.
