@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from datetime import date, datetime
 from pathlib import Path
 
@@ -20,7 +21,7 @@ def create_app() -> Flask:
         template_folder=str(ROOT / "templates"),
         static_folder=str(ROOT / "static"),
     )
-    app.config["SECRET_KEY"] = "dev-prototype-not-for-production"
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-prototype-not-for-production")
     app.config["DEMO_MODE"] = True
 
     @app.context_processor

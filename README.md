@@ -102,6 +102,17 @@ python app.py
 
 Then open http://127.0.0.1:5000 in a browser.
 
+## Deploy to Render
+
+The repository includes a Render Blueprint configuration in `render.yaml`.
+
+1. Sign in to [Render](https://render.com/) and choose **New > Blueprint**.
+2. Connect the `bida24-053/unified-seller-assistant` GitHub repository and select the `main` branch.
+3. Review and deploy the `unified-seller-assistant` web service. Render installs the dependencies and generates a production `SECRET_KEY` automatically.
+4. When deployment finishes, open the `onrender.com` URL shown in the Render dashboard. Share that live URL to let others use the frontend.
+
+The free web service may take a short time to wake up after inactivity. Customer additions remain in memory and reset when the service restarts.
+
 ## How to run tests
 
 ```powershell
